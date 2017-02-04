@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+mongoose.Promise=global.Promise;
 
 var MovieSchema = new mongoose.Schema({
     doctor:String,
@@ -33,15 +34,24 @@ MovieSchema.pre('save',function(next){
 
 MovieSchema.statics = {
     fetch:function(cb){
-        return this
+/*        return this
                 .find({})
-                .sort('meta.updateAt')
-                .exec(cb)
+                .sort({'meta.updateAt':-1})
+                .exec(cb);*/
+
+
+        var query=this.find({});
+        var promise = query.sort('meta.updateAt').exec(cb);
+        return promise
     },
     findById:function(id,cb){
-        return this
+/*        return this
                 .findOne({_id:id})
-                .exec(cb)
+                .exec(cb)*/
+
+        var query=this.findOne({_id:id});
+        var promise = query.exec(cb);
+        return promise
     }
 };
 
