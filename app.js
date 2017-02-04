@@ -88,7 +88,6 @@ app.post('/admin/movie/new', function (req, res) {
     var id = req.body.movie._id;
     var movieObj = req.body.movie;
     var _movie;
-    console.log("movieObj", movieObj);
     if (id !== '') {
         Movie.findById(id, function (err, movie) {
             if (err) {
