@@ -3,12 +3,14 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var mongoose = require('mongoose');
+
 var Movie = require('./models/movie.js');
 var User = require('./models/user.js');
 var port = process.env.PORT || 3000;
 var app = express();
+var dbUrl='mongodb://localhost/imooc';
 
-mongoose.connect('mongodb://localhost/imooc');
+mongoose.connect(dbUrl);
 mongoose.connection.on('connected', function () {
     console.log('Connection success!')
 });
@@ -20,13 +22,41 @@ app.locals.moment = require('moment');
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+var session = require('express-session');
+var mongoStore = require('connect-mongo')(session);
+app.use(session({
+    secret:'imooc',
+    resave: false,
+    saveUninitialized: true,
+    store:new mongoStore({
+        url:dbUrl,
+        collection:'sessions'
+    })
+}));
+
 app.listen(port, function () {
     console.log('imooc started on port ' + port);
 });
 
+//pre handle user
+app.use(function(req,res,next){
+    var _user=req.session.user;
+    if(_user){
+        app.locals.user = _user;
+    }
+    next();
+});
 
 //index page
 app.get('/', function (req, res) {
+    console.log(req.session.user);
+
+
+
     Movie.fetch(function (err, movies) {
         if (err) {
             console.log(err)
@@ -80,6 +110,7 @@ app.post('/user/signin', function (req, res) {
                 console.log(err)
             }
             if(isMatch){
+                req.session.user = user;
                 return res.redirect('/')
             }else{
                 console.log('Password is not matched');
@@ -87,6 +118,14 @@ app.post('/user/signin', function (req, res) {
             }
         })
     })
+});
+
+//logout
+app.get('/logout',function(req,res){
+    delete req.session.user;
+    delete app.locals.user;
+
+    res.redirect('/')
 });
 
 //userlist page
