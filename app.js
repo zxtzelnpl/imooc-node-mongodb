@@ -39,10 +39,67 @@ app.get('/', function (req, res) {
 });
 
 //singup
-app.post('/user/signup',function(req,res){
-   var _user=req.body.user;
+app.post('/user/signup', function (req, res) {
+    var _user = req.body.user;
+    User.findOne({name: _user.name}, function (err, user) {
+        if (err) {
+            console.log(err)
+        }
+        if (user) {
+            return res.redirect('/')
+        } else {
+            user = new User(_user);
+            user.save(function (err, user) {
+                if (err) {
+                    console.log(err)
+                }
 
-   console.log(_user)
+                res.redirect('/admin/userlist')
+            });
+        }
+    });
+});
+
+//signin
+app.post('/user/signin', function (req, res) {
+    var _user = req.body.user;
+    var name = _user.name;
+    var password = _user.password;
+
+    User.findOne({name:name},function(err,user){
+        if(err){
+            console.log(err)
+        }
+
+        if(!user){
+            return res.redirect('/')
+        }
+
+        user.comparePassword(password,function(err,isMatch){
+            if(err){
+                console.log(err)
+            }
+            if(isMatch){
+                return res.redirect('/')
+            }else{
+                console.log('Password is not matched');
+                return res.redirect('/admin/userlist')
+            }
+        })
+    })
+});
+
+//userlist page
+app.get('/admin/userlist', function (req, res) {
+    User.fetch(function (err, users) {
+        if (err) {
+            console.log(err)
+        }
+        res.render('userlist', {
+            title: 'imooc 用户列表页',
+            users: users
+        })
+    });
 });
 
 //detail page
@@ -150,11 +207,11 @@ app.get('/admin/list', function (req, res) {
 app.delete('/admin/list', function (req, res) {
     var id = req.query.id;
     if (id) {
-        Movie.remove({_id:id},function(err,movie){
-            if(err){
+        Movie.remove({_id: id}, function (err, movie) {
+            if (err) {
                 console.log(err)
-            }else{
-                res.json({success:1})
+            } else {
+                res.json({success: 1})
             }
         })
     }
