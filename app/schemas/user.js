@@ -8,9 +8,10 @@ var UserSchema = new mongoose.Schema({
         unique: true,
         type: String
     },
-    password: {
-        unique: true,
-        type: String
+    password: String,
+    role: {
+        type: Number,
+        default: 0
     },
     meta: {
         createAt: {
@@ -48,13 +49,13 @@ UserSchema.pre('save', function (next) {
 
 });
 
-UserSchema.methods={
-    comparePassword:function(_password,cb){
-        bcrypt.compare(_password,this.password,function(err,isMatch){
-            if(err){
+UserSchema.methods = {
+    comparePassword: function (_password, cb) {
+        bcrypt.compare(_password, this.password, function (err, isMatch) {
+            if (err) {
                 return cb(err)
             }
-            cb(null,isMatch)
+            cb(null, isMatch)
         })
     }
 };

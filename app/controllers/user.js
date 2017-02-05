@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var User = require('../models/user.js');
 
-exports.signup=function (req, res) {
+exports.signup = function (req, res) {
     var _user = req.body.user;
     User.findOne({name: _user.name}, function (err, user) {
         if (err) {
@@ -22,7 +22,7 @@ exports.signup=function (req, res) {
     });
 };
 
-exports.signin=function (req, res) {
+exports.signin = function (req, res) {
     var _user = req.body.user;
     var name = _user.name;
     var password = _user.password;
@@ -50,14 +50,14 @@ exports.signin=function (req, res) {
     })
 };
 
-exports.logout=function (req, res) {
+exports.logout = function (req, res) {
     delete req.session.user;
     //delete app.locals.user;
 
     res.redirect('/')
 };
 
-exports.list=function (req, res) {
+exports.list = function (req, res) {
     User.fetch(function (err, users) {
         if (err) {
             console.log(err)
@@ -69,14 +69,36 @@ exports.list=function (req, res) {
     });
 };
 
-exports.showSignup=function(req,res){
-    res.render('signup',{
-        title:'注册页面'
+exports.showSignup = function (req, res) {
+    res.render('signup', {
+        title: '注册页面'
     })
 };
 
-exports.showSignin=function(req,res){
-    res.render('signin',{
-        title:'登陆页面'
+exports.showSignin = function (req, res) {
+    res.render('signin', {
+        title: '登陆页面'
     })
+};
+
+//midware for user
+exports.signinRequired = function (req, res, next) {
+    var user = req.session.user;
+
+    if(!user){
+        return res.redirect('/signin')
+    }
+
+    next()
+};
+
+//midware for user
+exports.adminRequired=function(req,res,next){
+  var user = req.session.user;
+
+  if(!user.role || user.role <=10){
+      return res.redirect('/signin')
+  }
+
+  next()
 };
