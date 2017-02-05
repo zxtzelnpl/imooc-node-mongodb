@@ -19,6 +19,8 @@ module.exports = function (app) {
     app.post('/user/signin',User.signin);
     app.get('/logout',User.logout);
     app.get('/admin/userlist',User.list);
+    app.get('/signin',User.showSignin);
+    app.get('/signup',User.showSignup);
 
     //Movie
     app.get('/movie/:id',Movie.detail);
