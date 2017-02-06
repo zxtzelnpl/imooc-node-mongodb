@@ -1,23 +1,34 @@
 var mongoose = require('mongoose');
-var Movie = require('../models/movie.js');
+var Movie = require('../models/movie');
+var Comment = require('../models/comment');
 var _ = require('underscore');
 
 //detail page
-exports.detail=function (req, res) {
+exports.detail = function (req, res) {
     var id = req.params.id;
     Movie.findById(id, function (err, movie) {
         if (err) {
             console.log(err)
         }
-        res.render('detail', {
-            title: 'imooc ' + movie.title,
-            movie: movie
-        })
+
+        Comment
+            .find({movie: id})
+            .populate('from', 'name')
+            .populate('reply.from reply.to','name')
+            .exec(function (err, comments) {
+                res.render('detail', {
+                    title: 'imooc ' + movie.title,
+                    movie: movie,
+                    comments: comments
+                })
+            });
+
+
     });
 };
 
 //admin page
-exports.new=function (req, res) {
+exports.new = function (req, res) {
     res.render('admin', {
         title: 'imooc 后台录入页',
         movie: {
@@ -35,7 +46,7 @@ exports.new=function (req, res) {
 };
 
 //admin update movie
-exports.update=function (req, res) {
+exports.update = function (req, res) {
     var id = req.params.id;
 
     if (id) {
@@ -49,7 +60,7 @@ exports.update=function (req, res) {
 };
 
 //admin post movie
-exports.save=function (req, res) {
+exports.save = function (req, res) {
     var id = req.body.movie._id;
     var movieObj = req.body.movie;
     var _movie;
@@ -90,7 +101,7 @@ exports.save=function (req, res) {
 };
 
 //list page
-exports.list=function (req, res) {
+exports.list = function (req, res) {
     Movie.fetch(function (err, movies) {
         if (err) {
             console.log(err)
@@ -103,7 +114,7 @@ exports.list=function (req, res) {
 };
 
 //list delete movie
-exports.del=function (req, res) {
+exports.del = function (req, res) {
     var id = req.query.id;
     if (id) {
         Movie.remove({_id: id}, function (err, movie) {
