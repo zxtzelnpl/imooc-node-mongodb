@@ -1,3 +1,7 @@
+var port = process.env.PORT || 3000;
+
+var dbUrl='mongodb://localhost/imooc';
+
 var express = require('express');
 var app = express();
 
@@ -16,9 +20,7 @@ mongoose.connection.on('connected', function () {
 var morgan=require('morgan');
 var logger=morgan(':method :url :status');
 
-var port = process.env.PORT || 3000;
 
-var dbUrl='mongodb://localhost/imooc';
 
 
 

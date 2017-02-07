@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var Category = require('../models/category');
 var Movie = require('../models/movie');
 var Comment = require('../models/comment');
 var _ = require('underscore');
@@ -29,20 +30,24 @@ exports.detail = function (req, res) {
 
 //admin page
 exports.new = function (req, res) {
-    res.render('admin', {
-        title: 'imooc 后台录入页',
-        movie: {
-            title: '',
-            _id: '',
-            doctor: '',
-            country: '',
-            year: '',
-            poster: '',
-            language: '',
-            flash: '',
-            summary: ''
-        }
-    })
+    Category.find({},function(err,categories){
+        res.render('admin', {
+            title: 'imooc 后台录入页',
+            categories:categories,
+            movie: {
+                title: '',
+                _id: '',
+                doctor: '',
+                country: '',
+                year: '',
+                poster: '',
+                language: '',
+                flash: '',
+                summary: '',
+                category:''
+            }
+        })
+    });
 };
 
 //admin update movie
@@ -79,16 +84,7 @@ exports.save = function (req, res) {
             })
         })
     } else {
-        _movie = new Movie({
-            doctor: movieObj.doctor,
-            title: movieObj.title,
-            country: movieObj.country,
-            language: movieObj.language,
-            year: movieObj.year,
-            poster: movieObj.poster,
-            summary: movieObj.summary,
-            flash: movieObj.flash
-        });
+        _movie = new Movie(movieObj);
 
         _movie.save(function (err, movie) {
             if (err) {
