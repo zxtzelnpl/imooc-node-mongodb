@@ -44,6 +44,8 @@ app.use(session({
         collection:'sessions'
     })
 }));
+var multiparty=require('connect-multiparty');
+app.use(multiparty());
 
 if('development' === app.get('env')){
     app.set('showStackError',true);
